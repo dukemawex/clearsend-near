@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.108",
@@ -35,6 +35,7 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.28",
     "tailwindcss": "^4.3.4",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }
 }
