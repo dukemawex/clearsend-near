@@ -1,0 +1,10 @@
+target/
+node_modules/
+.next/
+.env
+.env.local
+*.pem
+.near-credentials/
+web/.env*
+!web/.env.example
+!.env.example
