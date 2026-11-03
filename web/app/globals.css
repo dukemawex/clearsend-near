@@ -1,0 +1,32 @@
+@import "tailwindcss";
+:root { --bg:#f7f7f4; --ink:#111; --mut:#6b7280; --line:#e5e5e0; --acc:#00c08b; --acc2:#0a7f5c; --err:#b42318; --card:#fff; }
+* { box-sizing:border-box } body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 ui-sans-serif,system-ui,Inter,sans-serif }
+a { color:var(--acc2) } code,pre { font-family:ui-monospace,Menlo,monospace; font-size:13px }
+h1 { font-size:28px; letter-spacing:-.5px; margin:8px 0 16px } h3 { margin:22px 0 8px }
+.nav { position:sticky; top:0; z-index:10; display:flex; gap:16px; align-items:center; justify-content:space-between; padding:12px 28px; background:#fff; border-bottom:1px solid var(--line); flex-wrap:wrap }
+.nav nav { display:flex; gap:4px; flex-wrap:wrap } .nav nav a { padding:6px 10px; border-radius:8px; color:#333; text-decoration:none; font-size:14px } .nav nav a.active,.nav nav a:hover { background:#eafaf4; color:var(--acc2) }
+.brand { font-weight:800; text-decoration:none; color:var(--ink) } .brand em { color:var(--acc2); font-style:normal } .logo { color:var(--acc) }
+.nav-right { display:flex; gap:8px; align-items:center }
+.wrap { max-width:1200px; margin:0 auto; padding:24px 28px 80px }
+.grid2 { display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:28px } @media (max-width:900px){ .grid2 { grid-template-columns:1fr } }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin:0 0 14px }
+.side .card p { margin:6px 0 } .kicker { font:11px ui-monospace,monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--mut); margin-bottom:8px }
+.btn { background:var(--ink); color:#fff; border:0; border-radius:10px; padding:9px 14px; cursor:pointer; font-weight:600 } .btn:disabled { opacity:.4; cursor:not-allowed } .btn.sm { padding:5px 10px; font-size:13px } .btn.ghost { background:#fff; color:var(--ink); border:1px solid var(--ink); margin-left:8px }
+.pill { border:1px solid var(--line); background:#fff; border-radius:999px; padding:5px 10px; font-size:12px; cursor:pointer } .pill.net { background:#eafaf4; border-color:#b6ecd9 } .muted { color:var(--mut) } .err { color:var(--err) } .ok { color:var(--acc2) }
+.chat .msg { margin:12px 0 } .msg.user p { background:var(--ink); color:#fff; padding:10px 14px; border-radius:14px; display:inline-block; max-width:85% } .msg.user { text-align:right } .msg.assistant { border-left:3px solid var(--acc); padding-left:12px }
+.composer { display:flex; gap:8px; margin-top:16px } .composer textarea { flex:1; min-height:56px; border:1px solid var(--line); border-radius:12px; padding:10px; font:inherit; resize:vertical }
+.empty { border:1px dashed var(--line); border-radius:14px; padding:22px; background:#fff } .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px } .chip { border:1px solid #b6ecd9; background:#f2fcf8; border-radius:999px; padding:7px 12px; cursor:pointer; font-size:13px }
+.tool { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:8px 0; font-size:14px } .tool.err { color:var(--err) }
+.flight { display:flex; justify-content:space-between; gap:10px; align-items:center; padding:8px 0; border-top:1px solid var(--line) }
+.breakdown { width:100%; border-collapse:collapse } .breakdown td { padding:5px 0; border-bottom:1px solid var(--line) } .breakdown td:last-child { text-align:right } .breakdown .total td { font-weight:800 }
+.kv { display:grid; grid-template-columns:110px 1fr; gap:4px 10px; font-size:14px } .kv dt { color:var(--mut) } .kv dd { margin:0; word-break:break-all }
+.spec { white-space:pre-wrap; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px; word-break:break-word }
+.check { display:block; margin:10px 0 } .tx { display:inline-block; margin-right:10px; font-size:13px }
+.form { display:grid; gap:10px } .form label { display:grid; gap:4px; font-size:13px; color:#333 } .form input,.form textarea,.form select { border:1px solid var(--line); border-radius:10px; padding:9px; font:inherit } .form textarea { min-height:90px }
+.list { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:12px } .list td { padding:9px 10px; border-bottom:1px solid var(--line); font-size:14px } .clip { max-width:380px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.row { display:flex; gap:16px; align-items:center; margin-bottom:10px; flex-wrap:wrap }
+.badge { font:11px ui-monospace,monospace; padding:3px 8px; border-radius:999px; background:#eee; vertical-align:middle } .s-funded,.s-submitted { background:#fff4d6 } .s-verified,.s-released { background:#d9f7ea; color:var(--acc2) } .s-rejected,.s-refunded { background:#fde2e0; color:var(--err) }
+.timeline { list-style:none; padding:0; margin:0 } .timeline li { padding:6px 0 6px 18px; position:relative; font-size:13px } .timeline li:before { content:""; position:absolute; left:2px; top:12px; width:8px; height:8px; border-radius:50%; background:#ccc } .timeline li.done:before { background:var(--acc) }
+.tabs { display:flex; gap:6px; margin-bottom:10px } .tabs button { border:1px solid var(--line); background:#fff; border-radius:8px; padding:6px 10px; cursor:pointer } .tabs button.active { background:var(--ink); color:#fff }
+.big { font-size:22px; font-weight:800 } .steps li { margin:6px 0 } .okc { border-color:#b6ecd9 } .errc { border-color:#f5c2bd }
+.card input[readonly] { width:100%; font-size:11px }
