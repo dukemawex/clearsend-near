@@ -2,7 +2,7 @@
 
 Cross-border payments and travel bookings settled through a NEAR escrow smart contract. Funds are released only after an AI verifier checks the deliverable against the payer's written spec and records its decision **on-chain**. The AI holds a NEAR function-call key that can call one method (`attest`) with a capped gas allowance, so it can judge but never move money.
 
-NEAR HACKATHON entry. Tracks: `realworld`, `agents`, `security`. License: MIT (`LICENSE`). Author: Emmanuel Duke (DUKERS LTD, Nigeria).
+NEAR HACKATHON entry. Track: Real-World Money. The AI agent is boxed in by a NEAR function-call key (it can only `attest`), which is the security angle, described below. License: MIT (`LICENSE`). Author: Emmanuel Duke (DUKERS LTD, Nigeria).
 
 ## Problem
 
@@ -14,7 +14,7 @@ Paying someone abroad for work or a booking means trusting them to deliver befor
 | --- | --- | --- |
 | Escrow contract (Rust, near-sdk 5.30) | `contracts/escrow` | Deployed on **testnet**: [`clearsend-intents-1793672696.testnet`](https://testnet.nearblocks.io/address/clearsend-intents-1793672696.testnet) |
 | AI verifier account (holds the restricted agent key) | — | [`clearsend-verifier-1793672761.testnet`](https://testnet.nearblocks.io/address/clearsend-verifier-1793672761.testnet) |
-| Web app (Next.js 15 + AI SDK) | `web/` | Runs locally (`npm run dev`); Vercel-deployable with Root Directory `web`. Hosted URL: not yet deployed |
+| Web app (Next.js 15 + AI SDK) | `web/` | Runs locally (`npm run dev`); Vercel-deployable with Root Directory `web`. Hosted: https://clearsend-near.vercel.app |
 | Agent key scripts | `scripts/agent-key.sh`, `scripts/deploy-testnet.sh` | Used to create the live testnet setup |
 
 Both testnet accounts above are throwaway accounts created with the near-cli faucet helper. No mainnet deployment.
@@ -61,7 +61,7 @@ See: escrow #0 (spec "ISO 4217 codes for Nigeria and Kenya", deliverable "NGN, K
 
 ```sh
 cd web
-cp .env.example .env.local      # fill OPENROUTER_API_KEY, ESCROW_LINK_SECRET; AGENT_PRIVATE_KEY optional
+cp .env.example .env.local      # fill MODEL_API_KEY, ESCROW_LINK_SECRET; AGENT_PRIVATE_KEY optional
 npm install
 npm run build && npm start      # or npm run dev
 npm test                        # unit tests (tsx)
@@ -69,16 +69,39 @@ npm test                        # unit tests (tsx)
 
 | Do | See |
 | --- | --- |
-| Open `/api/health` | network, contract reachable, verifier, which free models are configured, whether the agent key is present (never the key) |
+| Open `/api/health` | network, contract reachable, verifier, which models are configured, whether the agent key is present (never the key) |
 | Open `/policy` | live access keys of the verifier account read from NEAR RPC, with the FunctionCall restrictions and remaining allowance |
 | Open `/dashboard` | escrows read live from the contract (`list_escrows`), honest empty state if none |
 | Open `/escrow/0` | per-party tabs (payer / recipient / verifier / observer), timeline from on-chain history with explorer links, spec, deliverable, attestation |
-| On `/escrow/0`, verifier or payer tab, click "Run AI verifier" | `/api/verify` reads the escrow from chain, asks a free model to compare deliverable vs spec, and signs `attest` with the agent key. Result shows Approved/Rejected, model id, sha256 of the full report and a tx link. Without `OPENROUTER_API_KEY` it returns `No free model configured` |
+| On a Submitted escrow, verifier or payer tab, click "Run AI verifier" | `/api/verify` reads the escrow from chain, asks the configured model to compare deliverable vs spec, and signs `attest` with the agent key. Result shows Approved/Rejected, model id, sha256 of the full report and a tx link. Without `MODEL_API_KEY` it returns `No model configured`. It returns 409 without calling a model if the escrow is not Submitted or names a different verifier |
 | Connect a testnet wallet (MyNearWallet, Meteor, HERE), open `/escrow/new` | form -> review card -> tick confirmation -> 2 wallet signatures (`create_escrow`, `fund`) |
 | In the agent chat, click "Find flights from Lagos to London on 2026-12-15" | real results. Sky-Scrapper priced fares if `RAPIDAPI_KEY` is set; otherwise OpenSky/OpenFlights results labelled "schedule only · fare unavailable" with no choose button. The agent asks "Which flight would you like?" |
 | Choose a priced flight | agent asks to book and settle via escrow, collects traveller details, shows a breakdown (fare, 2.5% fee, FX from open.er-api.com/frankfurter, NEAR/USD from 1Click), asks for explicit confirmation, then renders a proposal card. Nothing is signed until you sign in your wallet |
 | Open `/payout`, request 10 NEAR -> usdc-near to `relay.tg` | a real NEAR Intents 1Click `dry: true` quote (amount out, min out, ETA), or the API's own error message |
 | Run `node --env-file=.env.local tests/attest-signing.mjs` | agent key signs `attest` (contract answers "escrow not found" for a fake id, so no verdict is written) and the protocol refuses `release` with that key: "method name release isn't allowed by the access key" |
+
+### Live run on testnet (escrow #1)
+
+Verifier `clearsend-verifier-1793808015.testnet` (function-call key, `attest` only, 0.25 NEAR allowance). Spec: translate "Payment received. Thank you." to French. The model `muse-spark-1.3` approved; report sha256 `91f6f10b77f2ec09d04aead637cfd04585a9ddc3906625bc31494eb2c58e6e8b`.
+
+| Step | Tx |
+| --- | --- |
+| create_escrow | [4pqZXV…](https://testnet.nearblocks.io/txns/4pqZXVSzzGf148CRUDFW5BGmwWoj9LovzLMocCar1cbJ) |
+| fund 1 NEAR | [Ho2JGf…](https://testnet.nearblocks.io/txns/Ho2JGf92RNRH8dddazK3AXvwMQ8xpdBWtYYCQzkHaFu1) |
+| submit | [3tdyVD…](https://testnet.nearblocks.io/txns/3tdyVDYM3qPAGc11tLagYhu89HUgeYWsLwZuWZeTYmQj) |
+| attest (AI agent key) | [EHRge4…](https://testnet.nearblocks.io/txns/EHRge46Jm7FMd3ohfuMWFY9sQdPmoasYg1Qx8aTCLX5G) |
+| release | [62R9u3…](https://testnet.nearblocks.io/txns/62R9u3SToWmNfaYVrx31jEQa88Lnqqunr1QiEnC2Ypj7) |
+
+View it: https://clearsend-near.vercel.app/escrow/1
+
+## Screenshots
+
+| Desktop | Mobile |
+| --- | --- |
+| ![home](docs/screenshots/home-desktop.png) | ![home](docs/screenshots/home-mobile.png) |
+| ![escrow 1](docs/screenshots/escrow-1-desktop.png) | ![escrow 1](docs/screenshots/escrow-1-mobile.png) |
+| ![policy](docs/screenshots/policy-desktop.png) | ![wallet selector](docs/screenshots/wallet-selector-desktop.png) |
+| ![dashboard](docs/screenshots/dashboard-desktop.png) | ![payout](docs/screenshots/payout-desktop.png) |
 
 ### D. Your own deployment
 
@@ -104,23 +127,26 @@ scripts/agent-key.sh revoke <verifier>.testnet ed25519:...
 - No mock, seed or canned data. Every list is read from NEAR RPC or a live API. Errors are shown as returned.
 - The agent cannot book schedule-only flights (price null). Price tools only accept offer ids returned by `searchFlights` in the same conversation (`collectOffers`), so the model cannot invent a fare.
 - Traveller personal data never goes on-chain. The spec stores a salted sha256 of traveller details.
-- Free models only: `lib/ai.ts` refuses OpenRouter model ids without `:free`. Default `nvidia/nemotron-3-ultra-550b-a55b:free`, fallback `google/gemma-4-31b-it:free` (the "Retry with fallback model" button), optional NEAR AI Cloud via `NEARAI_API_KEY` + `NEARAI_MODEL`.
+- Model: Meta Model API (OpenAI-compatible) via `VERIFIER_BASE_URL` (default `https://api.meta.ai/v1`), `VERIFIER_MODEL` (default `muse-spark-1.3`), `VERIFIER_FALLBACK_MODEL` (default `muse-spark-1.2`, the "Retry with fallback model" button) and `MODEL_API_KEY`. All Standard muse-spark tiers cost the same, so the newest is the default. Optional NEAR AI Cloud via `NEARAI_API_KEY` + `NEARAI_MODEL`.
+- AI routes are rate-limited per IP (`/api/verify` 3 per 10 min, `/api/agent` 20 per 10 min) with a global daily cap `AI_DAILY_CAP` (default 300).
 - Role links are HMAC-signed (`ESCROW_LINK_SECRET`, required) and only choose a view. They grant no authority.
 - `/api/verify` is public by design. It only acts on an escrow already in Submitted, the contract accepts one attestation per escrow, and gas spend is capped by the key allowance.
 - Secrets live only in env vars. `.env*` is git-ignored, and `.env.example` has no values.
 
 ## Known limits (unverified or pending)
 
-- The AI verifier and chat need `OPENROUTER_API_KEY`, which was not available in the build environment. The model-calling path compiles and fails cleanly without a key, but no live model run has been recorded on-chain yet. Escrow #0 is waiting for that.
-- Wallet-selector signing was built against the wallet-selector v10 API. All contract calls were exercised with near-cli and near-workspaces, not yet through a browser wallet.
+- Wallet-selector signing was built against the wallet-selector v10 API. All contract calls were exercised with near-cli and near-workspaces, not yet through a browser wallet. The wallet selector modal (MyNearWallet, Meteor) loads on the hosted site.
+- Rate limits are in-memory per serverless instance, so they are best-effort. The hard limits are on-chain: one attestation per escrow and the key's 0.25 NEAR gas allowance.
+- Escrow #0 names an earlier verifier account whose key is no longer available, so it can't be attested. Escrow #1 below is the full recorded run.
+- NEAR Intents payout is quote-only (`dry: true`); no mainnet execution has been run.
 - Sky-Scrapper priced fares need a RapidAPI key with quota. Without one, only schedule-only open data is returned.
 - Booking means the escrow pays the booking agent (recipient) once a ticket/PNR is verified. ClearSend does not issue airline tickets itself.
 
 ## Libraries
 
 Contract: `near-sdk` 5.30; dev: `near-workspaces` 0.24, `tokio`, `serde_json`, `anyhow`. Tooling: `cargo-near` 0.22, `near-cli-rs` 0.30.
-Web: `next` 15, `react` 19, `ai` 7 (Vercel AI SDK), `@ai-sdk/openai` 4 (OpenAI-compatible client for OpenRouter / NEAR AI Cloud), `@ai-sdk/react` 4, `zod` 4, `near-api-js` 6, `@near-wallet-selector/{core,modal-ui,my-near-wallet,meteor-wallet,here-wallet}` 10, `server-only`, `tailwindcss` 4; dev: `typescript` 5, `eslint` 9, `eslint-config-next`, `tsx`.
-External APIs: NEAR RPC (FastNEAR public), NEAR Intents 1Click (`1click.chaindefuser.com`), OpenRouter, open.er-api.com, frankfurter.app, OpenFlights data (GitHub raw), OpenSky Network, RapidAPI Sky-Scrapper (optional), Duffel/Aviationstack (optional; Duffel test fares are filtered out).
+Web: `next` 15, `react` 19, `ai` 7 (Vercel AI SDK), `@ai-sdk/openai` 4 (OpenAI-compatible client for the Meta Model API / NEAR AI Cloud), `@ai-sdk/react` 4, `zod` 4, `near-api-js` 6, `@near-wallet-selector/{core,modal-ui,my-near-wallet,meteor-wallet,here-wallet}` 10, `server-only`, `tailwindcss` 4; dev: `typescript` 5, `eslint` 9, `eslint-config-next`, `tsx`.
+External APIs: NEAR RPC (FastNEAR public), NEAR Intents 1Click (`1click.chaindefuser.com`), Meta Model API (`api.meta.ai`), open.er-api.com, frankfurter.app, OpenFlights data (GitHub raw), OpenSky Network, RapidAPI Sky-Scrapper (optional), Duffel/Aviationstack (optional; Duffel test fares are filtered out).
 
 ## Prior work and what is new (HACKATHON.md Q-002, Q-005)
 

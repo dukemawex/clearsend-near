@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { agentConfigured, getEscrow, signAttestation } from "@/lib/near";
+import { VERIFIER_ID } from "@/lib/config";
 import { verifyDeliverable } from "@/lib/verifier";
 import { rateLimit } from "@/lib/ratelimit";
 
@@ -17,6 +18,8 @@ export async function POST(req: Request) {
   try {
     const e = await getEscrow(id);
     if (!e) return NextResponse.json({ error: "escrow not found" }, { status: 404 });
+    if (e.status !== "Submitted") return NextResponse.json({ error: `escrow ${id} is ${e.status}; only Submitted escrows can be verified` }, { status: 409 });
+    if (e.verifier !== VERIFIER_ID) return NextResponse.json({ error: `escrow ${id} names verifier ${e.verifier}; this server's agent is ${VERIFIER_ID}, so it cannot attest` }, { status: 409 });
     const r = await verifyDeliverable(e);
     const args = { id, approved: r.verdict.approved, reason: r.verdict.reason.slice(0, 900) || "no reason", model: r.model.slice(0, 120), report_hash: r.reportHash };
     if (sign === false || !agentConfigured()) {
