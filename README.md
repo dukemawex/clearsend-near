@@ -82,7 +82,7 @@ npm test                        # unit tests (tsx)
 
 ### Live run on testnet (escrow #1)
 
-Verifier `clearsend-verifier-1793808015.testnet` (function-call key, `attest` only, 0.25 NEAR allowance). Spec: translate "Payment received. Thank you." to French. The model `muse-spark-1.3` approved; report sha256 `91f6f10b77f2ec09d04aead637cfd04585a9ddc3906625bc31494eb2c58e6e8b`.
+Verifier `clearsend-verifier-1793808015.testnet` (function-call key, `attest` only, 0.25 NEAR allowance). Spec: translate "Payment received. Thank you." to French. The model `muse-spark-1.3` (Standard tier, the default at the time) approved; report sha256 `91f6f10b77f2ec09d04aead637cfd04585a9ddc3906625bc31494eb2c58e6e8b`.
 
 | Step | Tx |
 | --- | --- |
@@ -127,7 +127,7 @@ scripts/agent-key.sh revoke <verifier>.testnet ed25519:...
 - No mock, seed or canned data. Every list is read from NEAR RPC or a live API. Errors are shown as returned.
 - The agent cannot book schedule-only flights (price null). Price tools only accept offer ids returned by `searchFlights` in the same conversation (`collectOffers`), so the model cannot invent a fare.
 - Traveller personal data never goes on-chain. The spec stores a salted sha256 of traveller details.
-- Model: Meta Model API (OpenAI-compatible) via `VERIFIER_BASE_URL` (default `https://api.meta.ai/v1`), `VERIFIER_MODEL` (default `muse-spark-1.3`), `VERIFIER_FALLBACK_MODEL` (default `muse-spark-1.2`, the "Retry with fallback model" button) and `MODEL_API_KEY`. All Standard muse-spark tiers cost the same, so the newest is the default. Optional NEAR AI Cloud via `NEARAI_API_KEY` + `NEARAI_MODEL`.
+- Model: Meta Model API (OpenAI-compatible) via `VERIFIER_BASE_URL` (default `https://api.meta.ai/v1`), `VERIFIER_MODEL` (default `muse-spark-1.3-contributor`), `VERIFIER_FALLBACK_MODEL` (default `muse-spark-1.2-contributor`, the "Retry with fallback model" button) and `MODEL_API_KEY`. Contributor models are Meta's cheapest tier (about $0.10 in / $0.20 out per million tokens) and let Meta use the prompts and outputs for training; set `VERIFIER_MODEL=muse-spark-1.3` to opt out. Optional NEAR AI Cloud via `NEARAI_API_KEY` + `NEARAI_MODEL`.
 - AI routes are rate-limited per IP (`/api/verify` 3 per 10 min, `/api/agent` 20 per 10 min) with a global daily cap `AI_DAILY_CAP` (default 300).
 - Role links are HMAC-signed (`ESCROW_LINK_SECRET`, required) and only choose a view. They grant no authority.
 - `/api/verify` is public by design. It only acts on an escrow already in Submitted, the contract accepts one attestation per escrow, and gas spend is capped by the key allowance.

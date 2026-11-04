@@ -10,8 +10,8 @@ const nearai = createOpenAI({ apiKey: process.env.NEARAI_API_KEY ?? "missing", b
 export function models() {
   const list: { name: string; id: string; model: ReturnType<typeof provider.chat> }[] = [];
   if (process.env.MODEL_API_KEY) {
-    const primary = process.env.VERIFIER_MODEL ?? "muse-spark-1.3";
-    const fallback = process.env.VERIFIER_FALLBACK_MODEL ?? "muse-spark-1.2";
+    const primary = process.env.VERIFIER_MODEL ?? "muse-spark-1.3-contributor";
+    const fallback = process.env.VERIFIER_FALLBACK_MODEL ?? "muse-spark-1.2-contributor";
     for (const id of new Set([primary, fallback].filter(Boolean))) list.push({ name: BASE_URL.includes("api.meta.ai") ? "meta-model-api" : "openai-compatible", id, model: provider.chat(id) });
   }
   if (process.env.NEARAI_API_KEY && process.env.NEARAI_MODEL) list.push({ name: "near-ai-cloud", id: process.env.NEARAI_MODEL, model: nearai.chat(process.env.NEARAI_MODEL) });
