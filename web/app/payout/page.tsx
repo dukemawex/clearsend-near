@@ -18,6 +18,6 @@ export default function Payout() {
       <table className="breakdown"><tbody>
         <tr><td>You send</td><td>{r.quote.amountInFormatted} NEAR (${Number(r.quote.amountInUsd).toFixed(2)})</td></tr>
         <tr><td>Recipient gets</td><td><b>{r.quote.amountOutFormatted}</b> (${Number(r.quote.amountOutUsd).toFixed(2)})</td></tr>
-        <tr><td>Minimum out</td><td>{r.quote.minAmountOut}</td></tr><tr><td>Est. time</td><td>{r.quote.timeEstimate}s</td></tr>
+        <tr><td>Minimum out</td><td>{r.quote.amountOut && Number(r.quote.amountOut) > 0 ? (Number(r.quote.minAmountOut) * Number(r.quote.amountOutFormatted) / Number(r.quote.amountOut)).toFixed(6) : r.quote.minAmountOut}</td></tr><tr><td>Est. time</td><td>{r.quote.timeEstimate}s</td></tr>
         <tr><td>Asset</td><td className="clip">{r.asset?.assetId}</td></tr></tbody></table></div>}</>;
 }

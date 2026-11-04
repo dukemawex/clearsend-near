@@ -31,7 +31,7 @@ function ToolPart({ p, send }: { p: Part; send: (t: string) => void }) {
   }
   if (name === "prepareFlightEscrow" || name === "prepareEscrow") return <ProposalCard p={o as unknown as Proposal} />;
   if (name === "priceFlightBooking") { const b = o.breakdown as Record<string, number | string>; return <div className="tool">Price: {b.totalFare} {b.currency} incl. 2.5% fee ≈ ${b.totalUsd} ≈ <b>{b.totalNear} NEAR</b> <span className="muted">(FX {b.fxSource}, NEAR price 1Click)</span></div>; }
-  if (name === "payoutQuote") { const q = o.quote as Record<string, string>; return <div className="tool">1Click {o.dry ? "dry-run " : ""}quote: {q.amountInFormatted} NEAR → <b>{q.amountOutFormatted}</b> {String(o.destination)} (≈${q.amountOutUsd}, ~{q.timeEstimate}s)</div>; }
+  if (name === "payoutQuote") { const q = o.quote as Record<string, string>; return <div className="tool">1Click {o.dry ? "dry-run " : ""}quote: {q.amountInFormatted} NEAR → <b>{q.amountOutFormatted}</b> {String(o.destination)} (≈${Number(q.amountOutUsd).toFixed(2)}, ~{q.timeEstimate}s)</div>; }
   return <div className="tool muted">{name} ✓</div>;
 }
 
