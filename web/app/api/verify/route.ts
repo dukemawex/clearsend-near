@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { agentConfigured, getEscrow, signAttestation } from "@/lib/near";
 import { verifyDeliverable } from "@/lib/verifier";
+import { rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -9,6 +10,8 @@ export const maxDuration = 120;
 // it only reads chain data, and the agent key can only call `attest`, once per escrow
 // (the contract moves Submitted -> Verified|Rejected), within a capped gas allowance.
 export async function POST(req: Request) {
+  const rl = rateLimit(req, "verify", 3, 600000);
+  if (!rl.ok) return NextResponse.json({ error: `Rate limited: ${rl.reason}` }, { status: 429, headers: { "retry-after": String(rl.retryAfter) } });
   const { id, sign } = await req.json().catch(() => ({}));
   if (typeof id !== "string" || !/^\d+$/.test(id)) return NextResponse.json({ error: "id must be a numeric string" }, { status: 400 });
   try {
